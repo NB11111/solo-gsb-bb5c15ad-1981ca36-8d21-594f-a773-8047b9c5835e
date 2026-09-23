@@ -1,0 +1,24 @@
+services:
+  adaptive-quiz:
+    build: .
+    image: adaptive-quiz:latest
+    container_name: adaptive-quiz
+    ports:
+      - "8000:8000"
+    environment:
+      CAT_DB_PATH: /data/cat.db
+      CAT_MAX_ITEMS: "10"
+      CAT_EXPOSURE_CAP: "5"
+      CAT_INITIAL_THETA: "0"
+    volumes:
+      - cat-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,urllib.request,sys; r=urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3); sys.exit(0 if json.load(r)['status']=='ok' else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  cat-data:
